@@ -16,7 +16,7 @@ namespace BadNews.Controllers
         // GET
         public IActionResult Index([FromQuery] int pageIndex = 0)
         {
-            var model = newsModelBuilder.BuildIndexModel(pageIndex, false, null);
+            var model = newsModelBuilder.BuildIndexModel(pageIndex, true, null);
             return View(model);
         }
 
