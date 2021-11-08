@@ -40,6 +40,11 @@ namespace BadNews
 
             services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
 
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+            });
+
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
@@ -50,6 +55,7 @@ namespace BadNews
             else
                 app.UseExceptionHandler("/Errors/Exception");
             app.UseHttpsRedirection();
+            app.UseResponseCompression();
             app.UseStaticFiles();
             app.UseSerilogRequestLogging();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
