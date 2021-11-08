@@ -36,6 +36,9 @@ namespace BadNews
 
             services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
             services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
+
+            services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
+
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса

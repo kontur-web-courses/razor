@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace BadNews.Repositories.Weather
@@ -13,7 +14,7 @@ namespace BadNews.Repositories.Weather
         {
             return new WeatherForecast
             {
-                TemperatureInCelsius = forecast.Main.Temp,
+                TemperatureInCelsius = decimal.ToInt32(Math.Round(forecast.Main.Temp)),
                 IconUrl = forecast.Weather.FirstOrDefault()?.IconUrl ?? defaultWeatherImageUrl
             };
         }
