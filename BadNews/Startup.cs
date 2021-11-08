@@ -1,6 +1,8 @@
-﻿using BadNews.ModelBuilders.News;
+﻿using BadNews.Elevation;
+using BadNews.ModelBuilders.News;
 // using BadNews.Models.News;
 using BadNews.Repositories.News;
+using BadNews.Repositories.Weather;
 using BadNews.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,7 +45,8 @@ namespace BadNews
                 mvcBuilder.AddRazorRuntimeCompilation();
             
             services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
-
+            services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
+            services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
@@ -78,7 +81,7 @@ namespace BadNews
             // {
             //     rootPathApp.Run(RenderIndexPage);
             // });
-            
+            app.UseMiddleware<ElevationMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
@@ -89,6 +92,11 @@ namespace BadNews
                 });
                 // endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}");
                 endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}/{id?}");
+            });
+            
+            app.MapWhen(context => context.Request.IsElevated(), branchApp =>
+            {
+                branchApp.UseDirectoryBrowser("/files");
             });
         }
 
