@@ -1,4 +1,5 @@
-﻿using BadNews.ModelBuilders.News;
+﻿using BadNews.Elevation;
+using BadNews.ModelBuilders.News;
 using BadNews.Repositories.News;
 using BadNews.Repositories.Weather;
 using BadNews.Validation;
@@ -52,6 +53,7 @@ namespace BadNews
             app.UseStaticFiles();
             app.UseSerilogRequestLogging();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
+            app.UseMiddleware<ElevationMiddleware>();
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
