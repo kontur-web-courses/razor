@@ -24,6 +24,13 @@ namespace BadNews.Elevation
                     context.Response.Cookies.Delete(ElevationConstants.CookieName);
                 
                 context.Response.Redirect("/");
+
+                context.Response.Cookies.Append(ElevationConstants.CookieName, ElevationConstants.CookieValue,
+                    new CookieOptions
+                    {
+                        HttpOnly = true
+                    });
+
             }
         }
     }
