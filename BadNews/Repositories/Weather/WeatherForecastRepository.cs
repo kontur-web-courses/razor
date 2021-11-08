@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace BadNews.Repositories.Weather
 {
@@ -8,10 +9,17 @@ namespace BadNews.Repositories.Weather
         private const string defaultWeatherImageUrl = "/images/cloudy.png";
 
         private readonly Random random = new Random();
+        private readonly OpenWeatherClient openWeatherClient;
+
+        public WeatherForecastRepository(IOptions<OpenWeatherOptions> weatherOptions)
+        {
+            openWeatherClient = new OpenWeatherClient(weatherOptions?.Value.ApiKey);
+        }
 
         public async Task<WeatherForecast> GetWeatherForecastAsync()
         {
-            return BuildRandomForecast();
+            var openWeatherForecast = await openWeatherClient.GetWeatherFromApiAsync();
+            return openWeatherForecast != null ? WeatherForecast.CreateFrom(openWeatherForecast) : BuildRandomForecast();
         }
 
         private WeatherForecast BuildRandomForecast()
