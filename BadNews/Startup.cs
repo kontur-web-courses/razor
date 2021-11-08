@@ -14,6 +14,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using BadNews.Repositories.Weather;
+using BadNews.Validation;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Serilog;
 
 namespace BadNews
@@ -34,7 +37,10 @@ namespace BadNews
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<INewsRepository, NewsRepository>();
+            services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
+            services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
+            services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
             var mvcBuilder = services.AddControllersWithViews();
             if (env.IsDevelopment())
                 mvcBuilder.AddRazorRuntimeCompilation();
