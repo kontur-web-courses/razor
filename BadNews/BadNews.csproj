@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Editor\Index.cshtml" />
     <Content Remove="Views\News\FullArticle.cshtml" />
     <Content Remove="Views\News\_Layout.cshtml" />
     <Content Remove="Views\News\_ViewStart.cshtml" />
@@ -13,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Editor\Index.cshtml" />
     <None Include="Views\_ViewImports.cshtml" />
     <None Include="Views\_ViewStart.cshtml" />
     <None Include="Views\Shared\_Layout.cshtml" />
