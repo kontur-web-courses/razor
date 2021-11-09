@@ -47,6 +47,7 @@ namespace BadNews
                 options.EnableForHttps = true;
             });
 
+            services.AddMemoryCache();
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
