@@ -13,7 +13,7 @@ namespace BadNews.Repositories.Weather
         public OpenWeatherClient(string apiKey)
         {
             this.apiKey = apiKey;
-            this.httpClient.Timeout = TimeSpan.FromSeconds(5);
+            this.httpClient.Timeout = TimeSpan.FromSeconds(30);
         }
 
         private readonly HttpClient httpClient = new HttpClient();
