@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using BadNews.Elevation;
 using BadNews.Repositories.Weather;
 using BadNews.Validation;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
@@ -41,6 +42,13 @@ namespace BadNews
             services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
             services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+            });
+            services.AddMemoryCache();
+
+
             var mvcBuilder = services.AddControllersWithViews();
             if (env.IsDevelopment())
                 mvcBuilder.AddRazorRuntimeCompilation();
@@ -55,22 +63,25 @@ namespace BadNews
                 app.UseExceptionHandler("/Errors/Exception");
             
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            
+            app.UseResponseCompression();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                OnPrepareResponse = options =>
+                {
+                    options.Context.Response.GetTypedHeaders().CacheControl =
+                        new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                        {
+                            Public = false,
+                            MaxAge = TimeSpan.FromDays(1)
+                        };
+                }
+            });
+
             app.UseSerilogRequestLogging();
             
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
-            // app.Map("/news/fullarticle", fullArticleApp =>
-            // {
-            //     fullArticleApp.Run(RenderFullArticlePage);
-            // });
-
-            // app.MapWhen(context => context.Request.Path == "/", rootPathApp =>
-            // {
-            //     rootPathApp.Run(RenderIndexPage);
-            // });
-            
+            app.UseMiddleware<ElevationMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
@@ -81,7 +92,12 @@ namespace BadNews
                 });
                 endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}/{id?}");
             });
-
+            
+            app.MapWhen(context => context.Request.IsElevated(), branchApp =>
+            {
+                branchApp.UseDirectoryBrowser("/files");
+            });
+            
             // Остальные запросы — 404 Not Found
         }
 
