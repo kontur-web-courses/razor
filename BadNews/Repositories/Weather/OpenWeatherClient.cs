@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -12,6 +13,7 @@ namespace BadNews.Repositories.Weather
         public OpenWeatherClient(string apiKey)
         {
             this.apiKey = apiKey;
+            this.httpClient.Timeout = TimeSpan.FromSeconds(30);
         }
 
         private readonly HttpClient httpClient = new HttpClient();
@@ -32,6 +34,7 @@ namespace BadNews.Repositories.Weather
                     {
                         NamingStrategy = new SnakeCaseNamingStrategy()
                     }
+                    
                 });
             return forecast;
         }

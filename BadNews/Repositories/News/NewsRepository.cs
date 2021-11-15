@@ -15,9 +15,12 @@ namespace BadNews.Repositories.News
 
         private object dataFileLocker = new object();
 
+        private static Dictionary<Guid, long> index = new();
+
         public NewsRepository(string dataFileName = "news.txt")
         {
             this.dataFileName = dataFileName;
+            RecalculateIndex();
         }
 
         public void InitializeDataBase(IEnumerable<NewsArticle> articles)
@@ -44,8 +47,39 @@ namespace BadNews.Repositories.News
             }
         }
 
+        private void RecalculateIndex()
+        {
+            if (!File.Exists(DataFilePath))
+                return;
+
+            long curByte = 0;
+            bool nextIsId = false;
+
+            lock (dataFileLocker)
+            {
+                var file = new FileStream(DataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using (var fileReader = new SeekableStreamTextReader(file, Encoding.UTF8))
+                {
+                    string line = fileReader.ReadLine();
+                    while (line != null)
+                    {
+                        if (nextIsId)
+                        {
+                            var guid = Guid.Parse(line);
+                            index[guid] = curByte;
+                        }
+                        nextIsId = line == recordSeparator;
+                        curByte = fileReader.UsedBytes;
+                        line = fileReader.ReadLine();
+                    }
+                }
+            }
+        }
+
         public NewsArticle GetArticleById(Guid id)
         {
+            if (!index.ContainsKey(id))
+                return null;
             NewsArticle article = null;
 
             var idString = id.ToString();
@@ -57,9 +91,10 @@ namespace BadNews.Repositories.News
                     if (id != obj.Id)
                         throw new InvalidDataException();
                     article = obj;
+                    return true;
                 }
                 return false;
-            });
+            }, index[id]);
 
             return article != null && !article.IsDeleted ? article : null;
         }
@@ -120,7 +155,7 @@ namespace BadNews.Repositories.News
                     {
                         Id = Guid.NewGuid()
                     };
-                    AppendArticle(fileWriter, storedArticle);
+                    index[storedArticle.Id] = AppendArticle(fileWriter, storedArticle);
 
                     return storedArticle.Id;
                 }
@@ -139,23 +174,26 @@ namespace BadNews.Repositories.News
                         Id = id,
                         IsDeleted = true
                     };
-
+                    index.Remove(id);
                     AppendArticle(fileWriter, storedArticle);
                 }
             }
         }
 
-        private static void AppendArticle(StreamWriter file, NewsArticle article)
+        private static long AppendArticle(StreamWriter file, NewsArticle article)
         {
+            long pos = 0;
             var meta = article.Id.ToString();
             var data = JsonConvert.SerializeObject(article, Formatting.Indented);
             file.WriteLine(recordSeparator);
+            pos = file.BaseStream.Position;
             file.WriteLine(meta);
             file.WriteLine(data);
+            return pos;
         }
 
         private void ReadFromFile(
-            Func<StringBuilder, StringBuilder, bool> onObjectRead)
+            Func<StringBuilder, StringBuilder, bool> onObjectRead, long startPos = 0)
         {
             if (!File.Exists(DataFilePath))
                 return;
@@ -165,6 +203,7 @@ namespace BadNews.Repositories.News
                 var file = new FileStream(DataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using (var fileReader = new SeekableStreamTextReader(file, Encoding.UTF8))
                 {
+                    fileReader.Seek(startPos, SeekOrigin.Begin);
                     int objectLine = 0;
                     var metaBuilder = new StringBuilder();
                     var dataBuilder = new StringBuilder();

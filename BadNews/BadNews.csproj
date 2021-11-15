@@ -10,4 +10,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include=".logs\log-20211025.txt" />
+    <Content Include=".logs\start-host-log-20211025.txt" />
+  </ItemGroup>
 </Project>
