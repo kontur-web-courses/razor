@@ -5,6 +5,8 @@
 
 <div class="p-4 bg-secondary text-light rounded weather-container">
     <h3>Погода сейчас</h3>
-    <div><img src="@Model.IconUrl" /></div>
+    <div>
+        <img src="@Model.IconUrl"/>
+    </div>
     <div class="mb-2 weather-temperature">@FormatTemperature(@Model.TemperatureInCelsius)</div>
 </div>
