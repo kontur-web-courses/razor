@@ -61,7 +61,7 @@ namespace BadNews.Repositories.News
             if (!indexIdToPosition.TryGetValue(idString, out var position))
                 return null;
             
-            var article = JsonConvert.DeserializeObject<NewsArticle>(ReadFromPosition(position).ToString());
+            var article = JsonConvert.DeserializeObject<NewsArticle>(ReadArticle(position).ToString());
             if (id != article.Id)
                 throw new InvalidDataException();
 
@@ -159,7 +159,7 @@ namespace BadNews.Repositories.News
             indexIdToPosition[article.Id.ToString()] = file.BaseStream.Position;;
         }
 
-        private StringBuilder ReadFromPosition(long position)
+        private StringBuilder ReadArticle(long startPosition)
         {
             if (!File.Exists(DataFilePath))
                 return null;
@@ -168,11 +168,10 @@ namespace BadNews.Repositories.News
             {
                 var file = new FileStream(DataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using var fileReader = new SeekableStreamTextReader(file, Encoding.UTF8);
-                fileReader.Seek(position, SeekOrigin.Begin);
+                fileReader.Seek(startPosition, SeekOrigin.Begin);
 
                 var objectLine = 0;
-                var metaBuilder = new StringBuilder();
-                var dataBuilder = new StringBuilder();
+                var data = new StringBuilder();
 
                 var line = fileReader.ReadLine();
                 while (line != null)
@@ -180,19 +179,17 @@ namespace BadNews.Repositories.News
                     if (line != recordSeparator)
                     {
                         if (objectLine++ > 0)
-                            dataBuilder.Append(line);
-                        else
-                            metaBuilder.Append(line);
+                            data.Append(line);
                     }
                     else
                     {
-                        return dataBuilder;
+                        return data;
                     }
 
                     line = fileReader.ReadLine();
                 }
 
-                return dataBuilder;
+                return data;
             }
         }
 
