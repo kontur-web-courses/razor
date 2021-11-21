@@ -44,7 +44,8 @@ namespace BadNews.Repositories.News
             }
         }
 
-        public NewsArticle GetArticleById(Guid id)
+        public NewsArticle GetArticleById(Guid id) //сделать так, чтобы не весь файл читался, а происходил переход к нужно части
+        //построить индекс по id
         {
             NewsArticle article = null;
 

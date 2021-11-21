@@ -1,0 +1,16 @@
+﻿@model IList<int>
+ 
+<div class="p-4 archive-links-container">
+    <h3>Архив новостей</h3>
+    <ol class="list-unstyled mb-0">
+        @foreach (var year in Model)
+        {
+            var text = DateTime.Now.Year == year ? "Новости этого года" : $"Новости за {year}";
+            <li>
+                <a asp-controller="News" asp-route-year=@year>
+                    @text
+                </a>
+            </li>
+        }
+    </ol>
+</div>
