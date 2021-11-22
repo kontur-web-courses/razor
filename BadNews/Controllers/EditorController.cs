@@ -1,19 +1,21 @@
 ﻿using System;
+using BadNews.Elevation;
 using BadNews.Models.Editor;
 using BadNews.Repositories.News;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BadNews.Controllers
 {
+    [ElevationRequiredFilter]
     public class EditorController : Controller
     {
-        private readonly INewsRepository _newsRepository;
+        private readonly INewsRepository newsRepository;
 
         public EditorController(INewsRepository newsRepository)
         {
-            this._newsRepository = newsRepository;
+            this.newsRepository = newsRepository;
         }
-
+        
         public IActionResult Index()
         {
             return View(new IndexViewModel());
@@ -25,7 +27,7 @@ namespace BadNews.Controllers
             if (!ModelState.IsValid)
                 return View("Index", model);
             
-            var id = _newsRepository.CreateArticle(new NewsArticle {
+            var id = newsRepository.CreateArticle(new NewsArticle {
                 Date = DateTime.Now.Date,
                 Header = model.Header,
                 Teaser = model.Teaser,
@@ -35,6 +37,13 @@ namespace BadNews.Controllers
             return RedirectToAction("FullArticle", "News", new {
                 id = id
             });
+        }
+        
+        [HttpPost]
+        public IActionResult DeleteArticle(Guid id)
+        {
+            newsRepository.DeleteArticleById(id);
+            return RedirectToAction("Index", "News");
         }
     }
 }

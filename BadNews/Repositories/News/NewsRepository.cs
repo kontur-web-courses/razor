@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace BadNews.Repositories.News
@@ -13,7 +15,9 @@ namespace BadNews.Repositories.News
         private readonly string dataFileName;
         private string DataFilePath => $"./.db/{dataFileName}";
 
-        private object dataFileLocker = new object();
+        private readonly object dataFileLocker = new object();
+        private static readonly Dictionary<Guid, long> UnorderedIndex = new Dictionary<Guid, long>();
+        private static Guid _lastArticle = Guid.Empty;
 
         public NewsRepository(string dataFileName = "news.txt")
         {
@@ -42,15 +46,34 @@ namespace BadNews.Repositories.News
                     }
                 }
             }
+            
+            IndexData();
         }
 
-        public NewsArticle GetArticleById(Guid id) //сделать так, чтобы не весь файл читался, а происходил переход к нужно части
-        //построить индекс по id
+        private void IndexData()
         {
-            NewsArticle article = null;
+            ReadFromFile((meta, data, offset) =>
+            {
+                var article = JsonConvert.DeserializeObject<NewsArticle>(data.ToString());
+                if (!article.IsDeleted)
+                {
+                    UnorderedIndex[article.Id] = offset;
+                    _lastArticle = article.Id;
+                }
 
+                return false;
+            }, _lastArticle);
+        }
+
+        public NewsArticle GetArticleById(Guid id)
+        {
+            if (!UnorderedIndex.ContainsKey(id))
+                return null;
+            
+            NewsArticle article = null;
             var idString = id.ToString();
-            ReadFromFile((meta, data) =>
+            
+            ReadFromFile((meta, data, offset) =>
             {
                 if (idString == meta.ToString())
                 {
@@ -59,8 +82,8 @@ namespace BadNews.Repositories.News
                         throw new InvalidDataException();
                     article = obj;
                 }
-                return false;
-            });
+                return true;
+            }, id);
 
             return article != null && !article.IsDeleted ? article : null;
         }
@@ -69,14 +92,14 @@ namespace BadNews.Repositories.News
         {
             var articles = new Dictionary<Guid, NewsArticle>();
 
-            ReadFromFile((meta, data) =>
+            ReadFromFile((meta, data, offset) =>
             {
                 var id = Guid.Parse(meta.ToString());
                 var obj = JsonConvert.DeserializeObject<NewsArticle>(data.ToString());
                 if (id != obj.Id)
                     throw new InvalidDataException();
                 if (obj.IsDeleted || predicate == null || predicate(obj))
-                articles[id] = obj;
+                    articles[id] = obj;
                 return false;
             });
 
@@ -91,7 +114,7 @@ namespace BadNews.Repositories.News
         {
             var years = new Dictionary<Guid, DateTime>();
 
-            ReadFromFile((meta, data) =>
+            ReadFromFile((meta, data, offset) =>
             {
                 var obj = JsonConvert.DeserializeObject<NewsArticle>(data.ToString());
                 if (!obj.IsDeleted)
@@ -112,20 +135,22 @@ namespace BadNews.Repositories.News
             if (article.Id != Guid.Empty)
                 throw new InvalidOperationException("Creating article should not have id");
 
+            NewsArticle storedArticle;
             lock (dataFileLocker)
             {
                 var file = new FileStream(DataFilePath, FileMode.Append, FileAccess.Write, FileShare.None);
+                
                 using (var fileWriter = new StreamWriter(file))
                 {
-                    var storedArticle = new NewsArticle(article)
+                    storedArticle = new NewsArticle(article)
                     {
                         Id = Guid.NewGuid()
                     };
                     AppendArticle(fileWriter, storedArticle);
-
-                    return storedArticle.Id;
                 }
             }
+            IndexData();
+            return storedArticle.Id;
         }
 
         public void DeleteArticleById(Guid id)
@@ -140,10 +165,10 @@ namespace BadNews.Repositories.News
                         Id = id,
                         IsDeleted = true
                     };
-
                     AppendArticle(fileWriter, storedArticle);
                 }
             }
+            IndexData();
         }
 
         private static void AppendArticle(StreamWriter file, NewsArticle article)
@@ -156,16 +181,22 @@ namespace BadNews.Repositories.News
         }
 
         private void ReadFromFile(
-            Func<StringBuilder, StringBuilder, bool> onObjectRead)
+            Func<StringBuilder, StringBuilder, long, bool> onObjectRead, Guid? articleToSeek = null)
         {
             if (!File.Exists(DataFilePath))
                 return;
 
             lock (dataFileLocker)
             {
+                long offset = 0;
                 var file = new FileStream(DataFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 using (var fileReader = new SeekableStreamTextReader(file, Encoding.UTF8))
                 {
+                    if (articleToSeek != null && articleToSeek.Value != Guid.Empty)
+                    {
+                        offset = UnorderedIndex[articleToSeek.Value];
+                        fileReader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                    }
                     int objectLine = 0;
                     var metaBuilder = new StringBuilder();
                     var dataBuilder = new StringBuilder();
@@ -173,6 +204,7 @@ namespace BadNews.Repositories.News
                     string line = fileReader.ReadLine();
                     while (line != null)
                     {
+                        var off = fileReader.UsedBytes;
                         if (line != recordSeparator)
                         {
                             if (objectLine++ > 0)
@@ -188,9 +220,10 @@ namespace BadNews.Repositories.News
                         {
                             if (metaBuilder.Length > 0 || dataBuilder.Length > 0)
                             {
-                                if (onObjectRead(metaBuilder, dataBuilder))
+                                if (onObjectRead(metaBuilder, dataBuilder, offset))
                                     return;
                             }
+                            offset = fileReader.UsedBytes;
 
                             objectLine = 0;
                             metaBuilder = new StringBuilder();
@@ -202,7 +235,7 @@ namespace BadNews.Repositories.News
 
                     if (dataBuilder.Length > 0)
                     {
-                        if (onObjectRead(metaBuilder, dataBuilder))
+                        if (onObjectRead(metaBuilder, dataBuilder, offset))
                             return;
                     }
                 }

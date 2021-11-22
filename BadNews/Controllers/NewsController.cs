@@ -1,33 +1,48 @@
 ﻿using System;
 using BadNews.ModelBuilders.News;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BadNews.Controllers
 {
+    [ResponseCache(Duration = 30, Location = ResponseCacheLocation.Client, VaryByHeader = "Cookie")]
     public class NewsController : Controller
     {
-        private readonly INewsModelBuilder _newsModelBuilder;
+        private IMemoryCache memoryCache;
+        private readonly INewsModelBuilder newsModelBuilder;
 
-        public NewsController(INewsModelBuilder newsModelBuilder)
+        public NewsController(INewsModelBuilder newsModelBuilder, IMemoryCache memoryCache)
         {
-            this._newsModelBuilder = newsModelBuilder;
+            this.memoryCache = memoryCache;
+            this.newsModelBuilder = newsModelBuilder;
         }
 
         public IActionResult Index(int? year, int pageIndex = 0)
         {
-            var model = _newsModelBuilder.BuildIndexModel(pageIndex, true, year);
+            var model = newsModelBuilder.BuildIndexModel(pageIndex, true, year);
             
             return View(model);
         }
 
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult FullArticle(Guid id)
         {
-            var model = _newsModelBuilder.BuildFullArticleModel(id);
-            if (model == null)
+            string cacheKey = nameof(NewsController) + id;
+            if (!memoryCache.TryGetValue(cacheKey, out var model))
             {
-                return NotFound();
+                model = newsModelBuilder.BuildFullArticleModel(id);
+                if (model == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    memoryCache.Set(cacheKey, model, new MemoryCacheEntryOptions
+                    {
+                        SlidingExpiration = TimeSpan.FromSeconds(30)
+                    });
+                }
             }
-            
             return View(model);
         }
     }
