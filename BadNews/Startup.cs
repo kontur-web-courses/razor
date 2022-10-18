@@ -1,4 +1,5 @@
-﻿using BadNews.ModelBuilders.News;
+﻿using BadNews.Controllers;
+using BadNews.ModelBuilders.News;
 using BadNews.Models.News;
 using BadNews.Repositories.News;
 using Microsoft.AspNetCore.Builder;
@@ -34,6 +35,7 @@ namespace BadNews
         {
             services.AddSingleton<INewsRepository, NewsRepository>();
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
+            services.AddControllersWithViews();
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
@@ -42,6 +44,16 @@ namespace BadNews
             app.UseDeveloperExceptionPage();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute("status-code", "StatusCode/{code?}", new
+                {
+                    controller = "Errors",
+                    action = nameof(ErrorsController.StatusCode)
+                });
+            });
 
             app.Map("/news", newsApp =>
             {
