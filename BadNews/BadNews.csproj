@@ -1,9 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\ErrorsController.cs" />
+    <Compile Remove="Controllers\ErrorsControllerc.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Controllers\ErrorsController.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.3" />
