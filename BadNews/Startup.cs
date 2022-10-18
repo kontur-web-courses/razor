@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Serilog;
 
 namespace BadNews
 {
@@ -34,14 +35,23 @@ namespace BadNews
         {
             services.AddSingleton<INewsRepository, NewsRepository>();
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
+            
+            services.AddControllersWithViews();
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
         public void Configure(IApplicationBuilder app)
         {
-            app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            else
+                app.UseExceptionHandler("/Errors/Exception");
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            
+            app.UseSerilogRequestLogging();
+            app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
             app.Map("/news", newsApp =>
             {
@@ -56,6 +66,18 @@ namespace BadNews
             app.MapWhen(context => context.Request.Path == "/", rootPathApp =>
             {
                 rootPathApp.Run(RenderIndexPage);
+            });
+            
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute("status-code", "StatusCode/{code?}", new
+                {
+                    controller = "Errors",
+                    action = "StatusCode"
+                });
+                
+                endpoints.MapControllerRoute("default", "{controller}/{action}");
             });
 
             // Остальные запросы — 404 Not Found
