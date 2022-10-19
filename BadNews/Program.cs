@@ -7,7 +7,7 @@ using Serilog;
 
 namespace BadNews
 {
-    public class Program
+    public class EditorController
     {
         public static void Main(string[] args)
         {
