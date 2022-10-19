@@ -1,20 +1,20 @@
+@model IList<int>
+
 <div class="p-4 archive-links-container">
     <h3>Архив новостей</h3>
     <ol class="list-unstyled mb-0">
-        <li>
-            <a>
-                Новости этого года
-            </a>
-        </li>
-        <li>
-            <a>
-                Новости за 2019
-            </a>
-        </li>
-        <li>
-            <a>
-                Новости за 2018
-            </a>
-        </li>
+        @foreach (var year in @Model) 
+        {
+            <li>
+                <a asp-controller="news" asp-route-year=@year>
+                    @if (@year == 2022) {
+                        <text>Новости этого года</text>
+                    }
+                    else {
+                        <text>Новости за @year</text>
+                    }
+                </a>
+            </li>
+        }
     </ol>
 </div>
