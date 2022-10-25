@@ -1,7 +1,10 @@
 ﻿using BadNews.ModelBuilders.News;
 using BadNews.Repositories.News;
+using BadNews.Repositories.Weather;
+using BadNews.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,11 +27,14 @@ namespace BadNews
         // В этом методе добавляются сервисы в DI-контейнер
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
+            services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
             var mvcBuilder = services.AddControllersWithViews();
             if (env.IsDevelopment())
                 mvcBuilder.AddRazorRuntimeCompilation();
             services.AddSingleton<INewsRepository, NewsRepository>();
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
+            services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса

@@ -1,4 +1,5 @@
 ﻿using BadNews.ModelBuilders.News;
+using BadNews.Models.Editor;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -13,9 +14,9 @@ namespace BadNews.Controllers
             this.newsModelBuilder = newsModelBuilder;
         }
 
-        public IActionResult Index(int pageIndex = 0)
+        public IActionResult Index(int? year, int pageIndex = 0)
         {
-            var model = newsModelBuilder.BuildIndexModel(pageIndex, true, null);
+            var model = newsModelBuilder.BuildIndexModel(pageIndex, true, year);
             
             return View(model);
         }
@@ -28,6 +29,12 @@ namespace BadNews.Controllers
                 return NotFound();
 
             return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult CreateArticle([FromForm] IndexViewModel model)
+        {
+            return View("Index", model);
         }
     }
 }

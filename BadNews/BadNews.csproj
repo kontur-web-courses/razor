@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 
@@ -12,6 +12,27 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>6</WarningLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Components\Class.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Editor\Editor.cshtml" />
+    <Content Remove="Views\Shared\Components\ArchiveLinks\Default.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="app" />
+    <None Remove="Components\NewFile.txt" />
+    <None Remove="Views\NewFile.txt" />
+    <None Remove="Views\Shared\Components\ArchiveLinks\NewFile.txt" />
+    <None Remove="Views\Shared\NewFile2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\Shared\Components\ArchiveLinks\Default.cshtml" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.3" />
