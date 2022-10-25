@@ -19,7 +19,15 @@ namespace BadNews.Repositories.Weather
         public async Task<WeatherForecast> GetWeatherForecastAsync()
         {
             var client = new OpenWeatherClient(apiKey);
-            var weather = WeatherForecast.CreateFrom(client.GetWeatherFromApiAsync().Result);
+            WeatherForecast weather;
+            try
+            {
+                weather = WeatherForecast.CreateFrom(client.GetWeatherFromApiAsync().Result);
+            }
+            catch
+            {
+                weather = BuildRandomForecast();
+            }
             return weather;
         }
 
