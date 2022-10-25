@@ -1,4 +1,6 @@
-﻿
+﻿@using BadNews.Elevation
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -16,6 +18,10 @@
 <div class="container">
     <header class="news-header">
         <a class="news-header-logo text-dark" href="/">Bad News</a>
+        @if (ViewContext.IsElevated())
+        {
+            <span class="text-primary ml-2">есть привилегии</span>
+        }
     </header>
 
     <div class="nav-scroller py-1 mb-2"></div>
