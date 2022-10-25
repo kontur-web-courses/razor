@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Serilog;
 
 namespace BadNews
 {
@@ -34,31 +35,38 @@ namespace BadNews
         {
             services.AddSingleton<INewsRepository, NewsRepository>();
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
+            
+            var mvcBuilder = services.AddControllersWithViews();
+            if (env.IsDevelopment())
+                mvcBuilder.AddRazorRuntimeCompilation();
         }
 
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
         public void Configure(IApplicationBuilder app)
         {
-            app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            else
+                app.UseExceptionHandler("/Errors/Exception");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSerilogRequestLogging();
+            app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
-            app.Map("/news", newsApp =>
+            app.Map("/news/fullarticle", fullArticleApp =>
             {
-                newsApp.Map("/fullarticle", fullArticleApp =>
+                fullArticleApp.Run(RenderFullArticlePage);
+            });
+
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute("status-code", "StatusCode/{code?}", new
                 {
-                    fullArticleApp.Run(RenderFullArticlePage);
+                    controller = "Errors",
+                    action = "StatusCode"
                 });
-
-                newsApp.Run(RenderIndexPage);
-            });
-
-            app.MapWhen(context => context.Request.Path == "/", rootPathApp =>
-            {
-                rootPathApp.Run(RenderIndexPage);
-            });
-
-            // Остальные запросы — 404 Not Found
+                endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}/{id?}");            });
         }
 
         // Региональные настройки, которые используются при обработке запросов новостей.
