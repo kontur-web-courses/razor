@@ -22,5 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Components\" />
+    <Folder Include="Views\Shared\Components\Weather\" />
   </ItemGroup>
 </Project>

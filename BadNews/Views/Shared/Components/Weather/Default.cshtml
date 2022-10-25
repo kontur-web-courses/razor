@@ -1,0 +1,14 @@
+@model Task<BadNews.Repositories.Weather.WeatherForecast>
+
+<div class="p-4 bg-secondary text-light rounded weather-container">
+    <h3>Погода сейчас</h3>
+    <div><img src=@Model.Result.IconUrl></div>
+    <div class="mb-2 weather-temperature">
+        @if (@Model.Result.TemperatureInCelsius > 0) {
+            <text>+@Model.Result.TemperatureInCelsius</text>
+        }
+        else {
+            <text>@Model.Result.TemperatureInCelsius</text>
+        }
+    </div>
+</div>
