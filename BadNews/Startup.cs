@@ -1,4 +1,5 @@
-﻿using BadNews.ModelBuilders.News;
+﻿using BadNews.Elevation;
+using BadNews.ModelBuilders.News;
 using BadNews.Repositories.News;
 using BadNews.Repositories.Weather;
 using BadNews.Validation;
@@ -58,6 +59,7 @@ namespace BadNews
                 rootPathApp.Run(RenderIndexPage);
             });
             */
+            app.UseMiddleware<ElevationMiddleware>();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

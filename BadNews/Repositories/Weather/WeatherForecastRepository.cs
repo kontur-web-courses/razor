@@ -20,7 +20,9 @@ namespace BadNews.Repositories.Weather
         {
             var openWeatherClient = new OpenWeatherClient(weather);
             var data = WeatherForecast.CreateFrom(await openWeatherClient.GetWeatherFromApiAsync());
-            return data;
+            if (data != null)
+                return data;
+            return BuildRandomForecast();
         }
 
         private WeatherForecast BuildRandomForecast()
