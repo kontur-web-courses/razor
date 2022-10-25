@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using BadNews.Validation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BadNews.Models.Editor
 {
