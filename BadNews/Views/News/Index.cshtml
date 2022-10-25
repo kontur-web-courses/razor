@@ -1,7 +1,29 @@
 ﻿@using System.Globalization
 @using System.Web
 @model BadNews.Models.News.IndexModel
-<!-- Body -->
+@section Header
+{
+    <div class="row mb-2">
+        @foreach (var article in Model.FeaturedArticles)
+        {
+            var link = $"/news/fullarticle/{HttpUtility.UrlEncode(article.Id.ToString())}";
+            <div class="col-md-6">
+                <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                    <div class="col p-4 d-flex flex-column position-static">
+                        <h3 class="mb-0">@article.Header</h3>
+                        <div class="mb-1 text-muted">
+                            @article.Date.ToString("d MMM yyyy", ViewBag.Culture)
+                        </div>
+                        <p class="card-text mb-auto">
+                            @article.Teaser
+                        </p>
+                        <a href=@link>Читать полностью</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
 
     <main role="main" class="container">
         <div class="row">
@@ -18,26 +40,23 @@
                         <p class="mb-auto">
                             @article.Teaser
                         </p>
-                        <a href=@link> Читать полностью...</a>
+                        <a asp-controller="News" asp-action="FullArticle" asp-route-id=@article.Id>
+                             Читать полностью...
+                        </a>
                     </div>
 
                 }
 
                 <nav class="news-pagination">
                     @{
-                        var newerUrl = !Model.IsFirst
-                            ? $"/news?pageIndex={HttpUtility.UrlEncode((Model.PageIndex - 1).ToString())}"
-                            : "";
-                        var olderUrl = !Model.IsLast
-                            ? $"/news?pageIndex={HttpUtility.UrlEncode((Model.PageIndex + 1).ToString())}"
-                            : "";
-                    }
-                    <!-- <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Новее</a> -->
-                    <a class="btn btn-outline-primary" href="@newerUrl">
+                        // HttpUtility.UrlEncode((Model.PageIndex + 1).ToString())
+                        var first = "btn btn-outline-primary" + (Model.IsFirst ? " disabled" : "");
+                        var last = "btn btn-outline-primary" + (Model.IsLast ? " disabled" : "");
+                     }
+                    <a class="@first" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex - 1)">
                         Новее
                     </a>
-                    <!-- <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Старше</a> -->
-                    <a class="btn btn-outline-primary" href="@olderUrl">
+                    <a class="@last" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex + 1)">
                         Старше
                     </a>
                 </nav>
