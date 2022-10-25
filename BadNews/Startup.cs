@@ -1,5 +1,6 @@
 ﻿using BadNews.ModelBuilders.News;
 using BadNews.Repositories.News;
+using BadNews.Repositories.Weather;
 using BadNews.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,9 +27,12 @@ namespace BadNews
         // В этом методе добавляются сервисы в DI-контейнер
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
+            
             services.AddSingleton<INewsRepository, NewsRepository>();
             services.AddSingleton<INewsModelBuilder, NewsModelBuilder>();
             services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
+            services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
             var mvcBuilder = services.AddControllersWithViews();
             if (env.IsDevelopment())
                 mvcBuilder.AddRazorRuntimeCompilation();
