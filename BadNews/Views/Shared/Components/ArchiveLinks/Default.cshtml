@@ -1,0 +1,13 @@
+﻿@model IList<int>
+@{
+    Layout = "_Layout";
+}
+
+@foreach (var year in Model)
+{
+    <li>
+        <a asp-controller="News" asp-route-year="@year">
+            Новости за @year
+        </a>
+    </li>
+}

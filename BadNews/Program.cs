@@ -5,21 +5,52 @@ using Microsoft.Extensions.Hosting;
 
 namespace BadNews
 {
+    using System;
+    using Microsoft.Extensions.Configuration;
+    using Serilog;
+
     public class Program
     {
         public static void Main(string[] args)
         {
             InitializeDataBase();
-            CreateHostBuilder(args).Build().Run();
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(".logs/start-host-log-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    rollOnFileSizeLimit: true,
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+                .CreateLogger();
+
+            try
+            {
+                Log.Information("Creating web host builder");
+                var hostBuilder = CreateHostBuilder(args)
+                    .ConfigureHostConfiguration(config => {
+                        config.AddJsonFile("appsettings.Secret.json", optional: true, reloadOnChange: false);
+                    });
+                Log.Information("Building web host");
+                var host = hostBuilder.Build();
+                Log.Information("Running web host");
+                host.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
+                .UseSerilog(
+                    (hostingContext, loggerConfiguration) =>
+                        loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
         }
 
         private static void InitializeDataBase()
