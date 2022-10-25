@@ -49,20 +49,21 @@
 
                 <nav class="news-pagination">
                     @{
-                        // HttpUtility.UrlEncode((Model.PageIndex + 1).ToString())
                         var first = "btn btn-outline-primary" + (Model.IsFirst ? " disabled" : "");
                         var last = "btn btn-outline-primary" + (Model.IsLast ? " disabled" : "");
                      }
-                    <a class="@first" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex - 1)">
+                    <a class="@first" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-year="@Model.Year">
                         Новее
                     </a>
-                    <a class="@last" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex + 1)">
+                    <a class="@last" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-year="@Model.Year">
                         Старше
                     </a>
                 </nav>
             </div>
 
             <aside class="col-md-4 news-sidebar">
+                <vc:archive-links></vc:archive-links>
+                <vc:weather></vc:weather>
             </aside>
         </div>
     </main>
