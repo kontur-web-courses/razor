@@ -6,7 +6,7 @@
 		@foreach (var year in @Model) 
 		{
 			<li>
-				<a asp-controller="news" asp-route-year=@year>
+				<a asp-controller="news" asp-action="Index" asp-route-year=@year>
 					@if (@year == 2022) {
 						<text>Новости этого года</text>
 					}

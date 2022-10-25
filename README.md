@@ -1152,7 +1152,7 @@ app.UseMiddleware<ElevationMiddleware>();
 
 Сделай переходы в привилегированный режим `/elevation?up` и обратно `/elevation`,
 проверяя наличие сообщения в шапке главной страницы.
-
+СПРОСИТЬ!!!!
 
 ### 5.2. HttpOnly
 
