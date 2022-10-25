@@ -18,12 +18,12 @@ namespace BadNews.Repositories.Weather
 
         public class MainInfo
         {
-            public int Temp { get; set; }
+            public float Temp { get; set; }
             public decimal FeelsLike { get; set; }
-            public int TempMin { get; set; }
-            public int TempMax { get; set; }
-            public int Pressure { get; set; }
-            public int Humidity { get; set; }
+            public float TempMin { get; set; }
+            public float TempMax { get; set; }
+            public float Pressure { get; set; }
+            public float Humidity { get; set; }
         }
     }
 }
