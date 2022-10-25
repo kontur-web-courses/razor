@@ -1,27 +1,43 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
+using BadNews.Models.Editor;
+using BadNews.Repositories.News;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BadNews.Controllers
 {
-    public class ErrorsController : Controller
+    public class EditorController : Controller
     {
-        private readonly ILogger<ErrorsController> logger;
+        private readonly INewsRepository newsRepository;
 
-        public ErrorsController(ILogger<ErrorsController> logger)
+        public EditorController(INewsRepository newsRepository)
         {
-            this.logger = logger;
+            this.newsRepository = newsRepository;
         }
 
-        public IActionResult StatusCode(int? code)
+        [HttpPost]
+        public IActionResult CreateArticle([FromForm] IndexViewModel model)
         {
-            logger.LogWarning("status-code {code} at {time}", code, DateTime.Now);
-            return View(code);
+            if (!ModelState.IsValid)
+                return View("Index", model);
+
+            var id = newsRepository.CreateArticle(new NewsArticle
+            {
+                Date = DateTime.Now.Date,
+                Header = model.Header,
+                Teaser = model.Teaser,
+                ContentHtml = model.ContentHtml,
+            });
+
+            return RedirectToAction("FullArticle", "News", new
+            {
+                id = id
+            });
         }
 
-        public IActionResult Exception()
+        [HttpGet("/editor")]
+        public IActionResult Index()
         {
-            return View(null, HttpContext.TraceIdentifier);
+            return View(new IndexViewModel());
         }
     }
 }
