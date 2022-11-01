@@ -15,7 +15,18 @@ namespace BadNews.Elevation
     
         public async Task InvokeAsync(HttpContext context)
         {
-            throw new NotImplementedException();
+            if (string.Equals(context.Request.Path, ElevationConstants.Path, StringComparison.OrdinalIgnoreCase))
+            {
+                if (context.Request.Query.ContainsKey(ElevationConstants.QueryKey))
+                    context.Response.Cookies.Append(ElevationConstants.CookieName,
+                        ElevationConstants.CookieValue, new CookieOptions { HttpOnly = true });
+                else
+                    context.Response.Cookies.Delete(ElevationConstants.CookieName);
+
+                context.Response.Redirect("/");
+            }
+
+            await next(context);
         }
     }
 }
