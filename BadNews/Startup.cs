@@ -41,6 +41,7 @@ namespace BadNews
             {
                 options.EnableForHttps = true;
             });
+            services.AddMemoryCache();
             if (env.IsDevelopment())
                 mvcBuilder.AddRazorRuntimeCompilation();
         }
