@@ -35,6 +35,10 @@ namespace BadNews
             services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
             services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
             var mvcBuilder = services.AddControllersWithViews();
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+            });
             if (env.IsDevelopment())
                 mvcBuilder.AddRazorRuntimeCompilation();
         }
@@ -47,6 +51,7 @@ namespace BadNews
             else
                 app.UseExceptionHandler("/Errors/Exception");
             app.UseHttpsRedirection();
+            app.UseResponseCompression();
             app.UseStaticFiles();
             app.UseSerilogRequestLogging();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
