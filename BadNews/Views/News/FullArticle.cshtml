@@ -1,0 +1,56 @@
+@model BadNews.Models.News.FullArticleModel
+@using BadNews.Elevation
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Bad News</title>
+    <meta name="theme-color" content="#563d7c" />
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900"
+          rel="stylesheet" />
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+
+    <!-- Body -->
+
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col-md-8 news-main">
+                <div class="news-article">
+                    <h4 class="news-article-title">@Model.Article.Header</h4>
+                    <p class="news-article-meta">
+                        @Model.Article.Date.ToString("d MMM yyyy", ViewBag.Culture)
+                    </p>
+                        @if (ViewContext.IsElevated())
+                        {
+                            <form class="mb-4" onsubmit="return confirm('Удалить новость?')"
+                                asp-controller="Editor" asp-action="DeleteArticle" asp-route-id="@(Model.Article.Id)">
+                                <button type="submit" class="btn-danger">Удалить</button>
+                            </form>
+                        }
+                        @Html.Raw(Model.Article.ContentHtml)
+                </div>
+            </div>
+
+            <aside class="col-md-4 news-sidebar">
+                <vc:archive-links></vc:archive-links>
+                <vc:weather></vc:weather>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="news-footer">
+        <p>
+            <a href="#">Наверх</a>
+        </p>
+    </footer>
+
+    <!--/ Body -->
+
+</body>
+</html>

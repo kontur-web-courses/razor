@@ -1,0 +1,98 @@
+@using System.Web
+@model BadNews.Models.News.IndexModel
+@section Header
+{
+    <div class="row mb-2">
+    @foreach (var article in Model.FeaturedArticles)
+    {
+        <div class="col-md-6">
+            <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                <div class="col p-4 d-flex flex-column position-static">
+                    <h3 class="mb-0">@article.Header</h3>
+                    <div class="mb-1 text-muted">@article.Date</div>
+                    <p class="card-text mb-auto">
+                        @article.Teaser
+                    </p>
+                    <a asp-controller="news" asp-action="fullarticle" asp-route-id=@article.Id.ToString()>Читать полностью</a>
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Bad News</title>
+    <meta name="theme-color" content="#563d7c" />
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900"
+          rel="stylesheet" />
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+
+    <!-- Body -->
+
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col-md-8 news-main">
+
+                @foreach (var article in Model.PageArticles)
+                {
+                    <div class="news-article">
+                        <h4 class="news-article-title">@article.Header</h4>
+                        <p class="news-article-meta">
+                            @article.Date
+                        </p>
+                        <p class="mb-auto">
+                            @article.Teaser
+                        </p>
+                        <a asp-controller="news" asp-action="fullarticle" asp-route-id=@article.Id.ToString()>Читать полностью</a>
+                    </div>
+                }
+
+                <nav class="news-pagination">
+                    @if (Model.IsFirst) { 
+                        <a class="btn btn-outline-secondary disabled" asp-controller="news" asp-route-pageIndex=@(Model.PageIndex - 1) asp-route-year=@Model.Year tabindex="-1" aria-disabled="true">
+                            Новее
+                        </a>
+                    }
+                    else {
+                        <a class="btn btn-outline-primary" asp-controller="news" asp-route-pageIndex=@(Model.PageIndex - 1) asp-route-year=@Model.Year>
+                            Новee
+                        </a>
+                    }
+                    @if (Model.IsLast) {
+                        <a class="btn btn-outline-secondary disabled" asp-controller="news" asp-route-pageIndex=@(Model.PageIndex + 1) asp-route-year=@Model.Year tabindex="-1" aria-disabled="true">
+                            Старше
+                        </a>
+                    }
+                    else {
+                        <a class="btn btn-outline-primary" asp-controller="news" asp-route-pageIndex=@(Model.PageIndex + 1) asp-route-year=@Model.Year>
+                            Старше
+                        </a>
+                    }
+                </nav>
+            </div>
+
+            <aside class="col-md-4 news-sidebar">
+                <vc:archive-links></vc:archive-links>
+                <vc:weather></vc:weather>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="news-footer">
+        <p>
+            <a href="#">Наверх</a>
+        </p>
+    </footer>
+
+    <!--/ Body -->
+</body>
+</html>
