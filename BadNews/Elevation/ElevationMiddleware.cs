@@ -18,7 +18,13 @@ namespace BadNews.Elevation
             if (context.Request.Path == new PathString("/elevation"))
             {
                 if (context.Request.Query.ContainsKey("up"))
-                    context.Response.Cookies.Append(ElevationConstants.CookieName, ElevationConstants.CookieValue);
+                {
+                    context.Response.Cookies.Append(ElevationConstants.CookieName, ElevationConstants.CookieValue,
+                        new CookieOptions
+                        {
+                            HttpOnly = true
+                        });
+                }
                 else
                     context.Response.Cookies.Delete(ElevationConstants.CookieName);
                 context.Response.Redirect("/");
