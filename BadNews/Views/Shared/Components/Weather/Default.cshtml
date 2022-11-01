@@ -1,5 +1,5 @@
 @{
-    string FormatTemperature(int temperature) => temperature > 0 ? $"+{temperature}" : temperature.ToString();
+    string FormatTemperature(decimal temperature) => temperature > 0 ? $"+{temperature}" : temperature.ToString();
 }
 
 @model BadNews.Repositories.Weather.WeatherForecast

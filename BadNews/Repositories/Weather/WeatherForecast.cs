@@ -6,7 +6,7 @@ namespace BadNews.Repositories.Weather
     {
         private const string defaultWeatherImageUrl = "/images/cloudy.png";
 
-        public int TemperatureInCelsius { get; set; }
+        public decimal TemperatureInCelsius { get; set; }
         public string IconUrl { get; set; }
 
         public static WeatherForecast CreateFrom(OpenWeatherForecast forecast)
