@@ -1,10 +1,12 @@
 ﻿using System;
+using BadNews.Elevation;
 using BadNews.Models.Editor;
 using BadNews.Repositories.News;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BadNews.Controllers
 {
+    [ElevationRequiredFilter]
     public class EditorController : Controller
     {
         private readonly INewsRepository newsRepository;
@@ -32,6 +34,13 @@ namespace BadNews.Controllers
             });
 
             return RedirectToAction("FullArticle", "News", new { id });
+        }
+        
+        [HttpPost]
+        public IActionResult DeleteArticle(Guid id)
+        {
+            newsRepository.DeleteArticleById(id);
+            return RedirectToAction("Index", "News");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BadNews.ModelBuilders.News;
+﻿using BadNews.Elevation;
+using BadNews.ModelBuilders.News;
 using BadNews.Repositories.News;
 using BadNews.Repositories.Weather;
 using BadNews.Validation;
@@ -53,25 +54,7 @@ namespace BadNews
             app.UseSerilogRequestLogging();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
-            // app.Map("/news/fullarticle", fullArticleApp =>
-            // {
-            //     fullArticleApp.Run(RenderFullArticlePage);
-            // });
-            
-            // app.Map("/news", newsApp =>
-            // {
-            //     newsApp.Map("/fullarticle", fullArticleApp =>
-            //     {
-            //         fullArticleApp.Run(RenderFullArticlePage);
-            //     });
-            //
-            //     newsApp.Run(RenderIndexPage);
-            // });
-
-            // app.MapWhen(context => context.Request.Path == "/", rootPathApp =>
-            // {
-            //     rootPathApp.Run(RenderIndexPage);
-            // });
+            app.UseMiddleware<ElevationMiddleware>();
             
             app.UseRouting();
             app.UseEndpoints(endpoints =>
@@ -83,6 +66,11 @@ namespace BadNews
                 });
                 
                 endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}/{id?}");
+            });
+            
+            app.MapWhen(context => context.Request.IsElevated(), branchApp =>
+            {
+                branchApp.UseDirectoryBrowser("/files");
             });
 
             // Остальные запросы — 404 Not Found
