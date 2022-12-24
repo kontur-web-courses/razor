@@ -44,21 +44,14 @@
             }
 
             <nav class="news-pagination">
-                @{
-                    var newerUrl = !Model.IsFirst
-                        ? $"/news?pageIndex={HttpUtility.UrlEncode((Model.PageIndex - 1).ToString())}"
-                        : "";
-                    var olderUrl = !Model.IsLast
-                        ? $"/news?pageIndex={HttpUtility.UrlEncode((Model.PageIndex + 1).ToString())}"
-                        : "";
-                }
                 @if (Model.IsFirst)
                 {
                     <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Новее</a>
                 }
                 else
                 {
-                    <a class="btn btn-outline-primary" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex - 1)">
+                    <a class="btn btn-outline-primary" asp-controller="News" 
+                       asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-year="@Model.Year">
                         Новее
                     </a>
                 }
@@ -68,7 +61,8 @@
                 }
                 else
                 {
-                    <a class="btn btn-outline-primary" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex + 1)">
+                    <a class="btn btn-outline-primary" asp-controller="News" 
+                       asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-year="@Model.Year">
                         Старше
                     </a> 
                 }
@@ -76,6 +70,8 @@
         </div>
 
         <aside class="col-md-4 news-sidebar">
+            <vc:weather></vc:weather>
+            <vc:archive-links></vc:archive-links>
         </aside>
     </div>
 </main>

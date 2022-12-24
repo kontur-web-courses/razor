@@ -48,7 +48,7 @@ namespace BadNews
                     webBuilder.UseEnvironment(Environments.Development);
                 })
                 .UseSerilog((hostingContext, loggerConfiguration) =>
-                    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));;
+                    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
         }
 
         private static void InitializeDataBase()
