@@ -40,34 +40,34 @@ namespace BadNews
         // В этом методе конфигурируется последовательность обработки HTTP-запроса
         public void Configure(IApplicationBuilder app)
         {
-            app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+            else
+                app.UseExceptionHandler("/Errors/Exception");
+
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
             app.UseRouting();
-            app.UseEndpoints(endpionts =>
+            app.UseEndpoints(endpoints =>
             {
-                endpionts.MapControllerRoute("status-code", "StatusCode/{code?}", new
+                endpoints.MapControllerRoute("status-code", "StatusCode/{code?}", new
                 {
                     controller = "Errors",
                     action = "StatusCode"
                 });
+                endpoints.MapControllerRoute("default", "{controller}/{action}");
             });
 
             app.Map("/news", newsApp =>
             {
-                newsApp.Map("/fullarticle", fullArticleApp =>
-                {
-                    fullArticleApp.Run(RenderFullArticlePage);
-                });
+                newsApp.Map("/fullarticle", fullArticleApp => { fullArticleApp.Run(RenderFullArticlePage); });
 
                 newsApp.Run(RenderIndexPage);
             });
 
-            app.MapWhen(context => context.Request.Path == "/", rootPathApp =>
-            {
-                rootPathApp.Run(RenderIndexPage);
-            });
+            app.MapWhen(context => context.Request.Path == "/", rootPathApp => { rootPathApp.Run(RenderIndexPage); });
 
             // Остальные запросы — 404 Not Found
         }
