@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BadNews.Repositories.Weather
 {
@@ -9,9 +11,28 @@ namespace BadNews.Repositories.Weather
 
         private readonly Random random = new Random();
 
+        private readonly OpenWeatherClient client;
+
+        private ILogger<WeatherForecastRepository> log;
+
+        public WeatherForecastRepository(IOptions<OpenWeatherOptions> weatherOptions, ILogger<WeatherForecastRepository> log)
+        {
+            this.log = log;
+            client = new OpenWeatherClient(weatherOptions?.Value.ApiKey);
+        }
+
         public async Task<WeatherForecast> GetWeatherForecastAsync()
         {
-            return BuildRandomForecast();
+            try
+            {
+                var weather = await client.GetWeatherFromApiAsync();
+                return WeatherForecast.CreateFrom(weather);
+            }
+            catch
+            {
+                log.LogWarning("Ошибка получения погоды");
+                return BuildRandomForecast();
+            }
         }
 
         private WeatherForecast BuildRandomForecast()
