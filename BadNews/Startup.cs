@@ -40,6 +40,9 @@ namespace BadNews
             services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
             services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
             services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
+            services.AddResponseCompression(options => { options.EnableForHttps = true; });
+            services.AddMemoryCache();
+
 
             var mvcBuilder = services.AddControllersWithViews();
             if (env.IsDevelopment())
@@ -55,14 +58,23 @@ namespace BadNews
                 app.UseExceptionHandler("/Errors/Exception");
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseResponseCompression();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                OnPrepareResponse = options =>
+                {
+                    options.Context.Response.GetTypedHeaders().CacheControl =
+                        new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                        {
+                            Public = false,
+                            MaxAge = TimeSpan.FromSeconds(30)
+                        };
+                }
+            });
             app.UseSerilogRequestLogging();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
             app.UseMiddleware<ElevationMiddleware>();
-            app.MapWhen(context => context.Request.IsElevated(), branchApp =>
-            {
-                branchApp.UseDirectoryBrowser("/files");
-            });
+            
 
 
             //app.MapWhen(context => context.Request.Path == "/", rootPathApp => { rootPathApp.Run(RenderIndexPage); });
@@ -77,7 +89,8 @@ namespace BadNews
                 });
                 endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}/{id?}");
             });
-
+            app.MapWhen(context => context.Request.IsElevated(),
+                branchApp => { branchApp.UseDirectoryBrowser("/files"); });
             // Остальные запросы — 404 Not Found
         }
     }
