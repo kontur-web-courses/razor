@@ -43,16 +43,18 @@
             }
 
             <nav class="news-pagination">
-                <a class="btn btn-outline-primary" asp-controller="News"  asp-route-pageIndex=@(!Model.IsFirst ? Model.PageIndex - 1 : 0)>
-                    Старше
+                <a class="btn btn-outline-primary" asp-controller="News"  asp-route-pageIndex=@(!Model.IsFirst ? Model.PageIndex - 1 : 0) asp-route-year=@(Model.Year)>
+                    Новее
                 </a>
-                <a class="btn btn-outline-primary" asp-controller="News"  asp-route-pageIndex=@(!Model.IsLast ? Model.PageIndex + 1 : 0)>
+                <a class="btn btn-outline-primary" asp-controller="News"  asp-route-pageIndex=@(!Model.IsLast ? Model.PageIndex + 1 : 0) asp-route-year=@(Model.Year)>
                     Старше
                 </a>
             </nav>
         </div>
 
         <aside class="col-md-4 news-sidebar">
+            <vc:weather></vc:weather>
+            <vc:archive-links></vc:archive-links>
         </aside>
     </div>
 </main>
