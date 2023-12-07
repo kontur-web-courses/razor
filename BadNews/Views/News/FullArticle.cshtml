@@ -1,5 +1,4 @@
-﻿@page
-@using System.Globalization
+﻿@using System.Globalization
 @model BadNews.Models.News.FullArticleModel
 
 @{
@@ -41,7 +40,7 @@
                 <p class="news-article-meta">
                     @Model.Article.Date.ToString("d MMM yyyy", culture)
                 </p>
-                @Model.Article.ContentHtml
+                @Html.Raw(Model.Article.ContentHtml)
             </div>
         </div>
 
