@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BadNews.ModelBuilders.News;
 using Microsoft.AspNetCore.Mvc;
 
