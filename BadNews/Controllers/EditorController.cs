@@ -1,14 +1,16 @@
 ﻿using System;
+using BadNews.Elevation;
 using BadNews.Models.Editor;
 using BadNews.Repositories.News;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BadNews.Controllers
 {
+    [ElevationRequiredFilter]
     public class EditorController : Controller
     {
         private readonly INewsRepository newsRepository;
-
+        
         public EditorController(INewsRepository newsRepository)
         {
             this.newsRepository = newsRepository;
@@ -35,8 +37,15 @@ namespace BadNews.Controllers
                 id = id
             });
         }
+        
+        [HttpPost]
+        public IActionResult DeleteArticle(Guid id)
+        {
+            newsRepository.DeleteArticleById(id);
+            return RedirectToAction("Index", "News");
+        }
     }
-    
+
     // public class IndexViewModel
     // {
     //     [Required(ErrorMessage = "У новости должен быть заголовок")]
