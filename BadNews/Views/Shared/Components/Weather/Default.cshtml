@@ -1,0 +1,12 @@
+﻿@model Task<BadNews.Repositories.Weather.WeatherForecast>
+
+<div class="p-4 bg-secondary text-light rounded weather-container">
+    <h3>Погода сейчас</h3>
+    <div><img src=@Model.Result.IconUrl/></div>
+    <div class="mb-2 weather-temperature">
+        @{
+            string FormatTemperature(int temperature) => temperature > 0 ? $"+{temperature}" : temperature.ToString();
+        }
+         <h4 class="news-article-title">@FormatTemperature(Model.Result.TemperatureInCelsius)</h4>
+    </div>
+</div>
