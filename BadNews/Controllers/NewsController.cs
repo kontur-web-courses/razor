@@ -1,16 +1,20 @@
 using System;
 using BadNews.ModelBuilders.News;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BadNews.Controllers
 {
+    [ResponseCache(Duration = 30, Location = ResponseCacheLocation.Client, VaryByHeader = "Cookie")]
     public class NewsController : Controller
     {
         private readonly INewsModelBuilder newsModelBuilder;
+        private readonly IMemoryCache memoryCache;
 
-        public NewsController(INewsModelBuilder newsModelBuilder)
+        public NewsController(INewsModelBuilder newsModelBuilder, IMemoryCache memoryCache)
         {
             this.newsModelBuilder = newsModelBuilder;
+            this.memoryCache = memoryCache;
         }
 
         public IActionResult Index(int? year, int pageIndex = 0)
@@ -21,11 +25,19 @@ namespace BadNews.Controllers
 
         public IActionResult FullArticle(Guid id)
         {
-            var model = newsModelBuilder.BuildFullArticleModel(id);
-            if (model == null)
+            if (memoryCache.TryGetValue(id, out var article))
+                return View(article);
+
+            article = newsModelBuilder.BuildFullArticleModel(id);
+            if (article == null)
                 return NotFound();
 
-            return View(model);
+            memoryCache.Set(id, article, new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromSeconds(30)
+            });
+
+            return View(article);
         }
     }
 }

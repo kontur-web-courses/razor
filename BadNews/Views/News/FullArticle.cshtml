@@ -1,3 +1,6 @@
+@using BadNews.Elevation
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using BadNews.Components
 @model BadNews.Models.News.FullArticleModel
 
 <!-- Body -->
@@ -10,6 +13,13 @@
                 <p class="news-article-meta">
                     @Model.Article.Date.ToString("d MMM yyyy", ViewBag.Culture)
                 </p>
+                @if (ViewContext.IsElevated())
+                {
+                    <form class="mb-4" onsubmit="return confirm('Удалить новость?')"
+                        asp-controller="Editor" asp-action="DeleteArticle" asp-route-id="@(Model.Article.Id)">
+                        <button type="submit" class="btn-danger">Удалить</button>
+                    </form>
+                }
                 @Html.Raw(Model.Article.ContentHtml)
             </div>
         </div>
