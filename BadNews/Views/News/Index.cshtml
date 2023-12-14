@@ -1,5 +1,4 @@
 ﻿@model BadNews.Models.News.IndexModel
-@using System.Web
 
 @section Header
 {
@@ -40,31 +39,32 @@
                 </div>
             }
 
-            <nav class="news-pagination">
-                @if (Model.IsFirst)
-                {
-                    <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Новее</a>
-                }
-                else
-                {
-                    <a class="btn btn-outline-primary" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex - 1)">
-                        Новее
-                    </a>
-                }
-                @if (Model.IsLast)
-                {
-                    <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Старше</a>
-                }
-                else
-                {
-                    <a class="btn btn-outline-primary" asp-controller="News" asp-route-pageIndex="@(Model.PageIndex + 1)">
-                        Старше
-                    </a>
-                }
-            </nav>
+        <nav class="news-pagination">
+            @if (Model.IsFirst)
+            {
+                <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Новее</a>
+            }
+            else
+            {
+            <a class="btn btn-outline-primary" asp-controller="News" asp-route-year="@Model.Year" asp-route-pageIndex="@(Model.PageIndex - 1)">
+                Новее
+            </a>
+            }
+            @if (Model.IsLast)
+            {
+                <a class="btn btn-outline-secondary disabled" href="#" tabindex="-1" aria-disabled="true">Старше</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-primary" asp-controller="News" asp-route-year="@Model.Year" asp-route-pageIndex="@(Model.PageIndex + 1)">
+                    Старше
+                </a>
+            }
+        </nav>
         </div>
 
         <aside class="col-md-4 news-sidebar">
+            <vc:archive-links></vc:archive-links>
         </aside>
     </div>
 </main>
