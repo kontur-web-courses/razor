@@ -35,6 +35,7 @@ namespace BadNews
             services.AddSingleton<IValidationAttributeAdapterProvider, StopWordsAttributeAdapterProvider>();
             services.Configure<OpenWeatherOptions>(configuration.GetSection("OpenWeather"));
             services.AddSingleton<IWeatherForecastRepository, WeatherForecastRepository>();
+            services.AddMemoryCache();
             services.AddResponseCompression(options =>
             {
                 options.EnableForHttps = true;
