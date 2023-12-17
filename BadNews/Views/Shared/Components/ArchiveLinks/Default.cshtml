@@ -1,0 +1,15 @@
+﻿@model System.Collections.Generic.IList<int>
+
+<div class="p-4 archive-links-container">
+    <h3>Архив новостей</h3>
+    <ol class="list-unstyled mb-0">
+        @foreach (var article in Model)
+        {
+            <li>
+                <a asp-controller="News" asp-action="Index" asp-route-year=@article.ToString()>
+                    Новости за @(article==DateTime.Now.Year ? "этот год" : article) 
+                </a>
+            </li>
+        }
+    </ol>
+</div>
