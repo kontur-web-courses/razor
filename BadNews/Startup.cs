@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using BadNews.Elevation;
 using BadNews.Repositories.Weather;
 using BadNews.Validation;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
@@ -54,10 +55,12 @@ namespace BadNews
                 app.UseDeveloperExceptionPage();
             else
                 app.UseExceptionHandler("/Errors/Exception");
+            app.UseMiddleware<ElevationMiddleware>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSerilogRequestLogging();
             app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
+            
             
 
             /*app.MapWhen(context => context.Request.Path == "/", rootPathApp =>
@@ -74,6 +77,11 @@ namespace BadNews
                     action = "StatusCode"
                 });
                 endpoints.MapControllerRoute("default", "{controller=News}/{action=Index}/{id?}");
+            });
+            
+            app.MapWhen(context => context.Request.IsElevated(), branchApp =>
+            {
+                branchApp.UseDirectoryBrowser("/files");
             });
             
         }
