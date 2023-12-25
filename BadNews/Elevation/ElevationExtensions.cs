@@ -8,7 +8,7 @@ namespace BadNews.Elevation
         public static bool IsElevated(this HttpRequest request)
         {
             bool isElevated = request.Cookies.TryGetValue(ElevationConstants.CookieName, out var value)
-                && value == ElevationConstants.CookieValue;
+                              && value == ElevationConstants.CookieValue;
             return isElevated;
         }
 
